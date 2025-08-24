@@ -24,8 +24,8 @@
   ],
   "cache": {
     "static": {
-      "maxAge": 2592000,        // 30 days in seconds
-      "staleWhileRevalidate": 604800  // 7 days in seconds
+      "maxAge": 2592000,       
+      "staleWhileRevalidate": 604800 
     }
   }
 }
