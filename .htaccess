@@ -1,0 +1,24 @@
+# Apache configuration for share link redirection
+RewriteEngine On
+
+# Handle share links - redirect to share page with token
+RewriteRule ^share/([a-f0-9]+)/?$ /share/index.html [L]
+
+# Handle root domain - redirect to main landing page
+RewriteRule ^/?$ /index.html [L]
+
+# Enable CORS for API calls
+Header always set Access-Control-Allow-Origin "*"
+Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
+
+# Cache static assets
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg)$">
+    ExpiresActive On
+    ExpiresDefault "access plus 1 month"
+</FilesMatch>
+
+# Security headers
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
