@@ -21,11 +21,5 @@
         { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
       ]
     }
-  ],
-  "cache": {
-    "static": {
-      "maxAge": 2592000,       
-      "staleWhileRevalidate": 604800 
-    }
-  }
+  ]
 }
