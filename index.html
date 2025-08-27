@@ -303,38 +303,17 @@
         
         async function handleAppRedirect() {
             const platform = detectPlatform();
-            const shareToken = getShareToken();
-            
-            console.log('Platform detected:', platform);
-            console.log('Share token:', shareToken);
             
             if (platform === 'web') {
-                // For web users, just show the download button
+                // For web users, just update button text and stop
+                updateButtonForAppStore(platform);
                 hideLoading();
                 return;
             }
             
-            showLoading();
-            
-            try {
-                // Try universal link first
-                const appOpenWorked = await tryAppOpen(shareToken);
-                
-                if (!appOpenWorked) {
-                    // Universal link failed, redirect to app store
-                    console.log('Universal link failed, redirecting to app store');
-                    const storeUrl = APP_STORE_URLS[platform];
-                    
-                    if (storeUrl) {
-                        window.location.href = storeUrl;
-                    } else {
-                        showError();
-                    }
-                }
-            } catch (error) {
-                console.error('Error during app redirect:', error);
-                showError();
-            }
+            // For mobile, just update button text - don't auto-redirect
+            updateButtonForAppStore(platform);
+            hideLoading();
         }
         
         function handleDownloadClick() {
@@ -354,11 +333,8 @@
             downloadBtn.addEventListener('click', handleDownloadClick);
             
             // Auto-redirect on mobile platforms
-            const platform = detectPlatform();
-            if (platform !== 'web') {
-                // Small delay to let the page load
-                setTimeout(handleAppRedirect, 500);
-            }
+            // Just update button text, no auto-redirect
+            setTimeout(handleAppRedirect, 100);
         });
     </script>
 </body>

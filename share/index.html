@@ -132,7 +132,7 @@
     <script>
         // App Store URLs
         const APP_STORE_URLS = {
-            ios: ' https://apps.apple.com/in/app/drvnai/id6748619728',
+            ios: 'https://apps.apple.com/app/drvn-ai/id6738049391',
             android: 'https://play.google.com/store/apps/details?id=com.sgesdevllc.drvnai'
         };
         
@@ -253,39 +253,49 @@
             const shareToken = getShareToken();
             
             if (platform === 'web') {
+                // For web users, just update button and stop
                 updateButtonForAppStore(platform);
+                hideLoading();
                 return;
             }
             
             if (!shareToken) {
-                // No share token, just redirect to app store
+                // No share token, just update button
                 updateButtonForAppStore(platform);
+                hideLoading();
                 return;
             }
             
-            showLoading();
-            
-            try {
-                // Try universal link
-                const universalLinkWorked = await tryUniversalLink(shareToken);
-                
-                if (!universalLinkWorked) {
-                    // Universal link failed, show countdown and redirect to app store
-                    hideLoading();
-                    updateButtonForAppStore(platform);
-                    startCountdown();
-                }
-            } catch (error) {
-                console.error('Error during app redirect:', error);
-                hideLoading();
-                updateButtonForAppStore(platform);
-            }
+            // For mobile with share token, try deep link on button click only
+            updateButtonForAppStore(platform);
+            hideLoading();
         }
         
-        function handleDownloadClick() {
+        async function handleDownloadClick() {
             const platform = detectPlatform();
-            const storeUrl = APP_STORE_URLS[platform];
+            const shareToken = getShareToken();
             
+            // If mobile and has share token, try deep link first
+            if (platform !== 'web' && shareToken) {
+                showLoading();
+                
+                try {
+                    const deepLinkWorked = await tryDeepLink(shareToken);
+                    
+                    if (!deepLinkWorked) {
+                        // Deep link failed, show countdown and redirect to app store
+                        hideLoading();
+                        startCountdown();
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error during deep link:', error);
+                    hideLoading();
+                }
+            }
+            
+            // Fallback to app store
+            const storeUrl = APP_STORE_URLS[platform];
             if (storeUrl) {
                 window.open(storeUrl, '_blank');
             }
@@ -297,7 +307,8 @@
             downloadBtn.addEventListener('click', handleDownloadClick);
             
             // Auto-redirect on mobile platforms
-            setTimeout(handleAppRedirect, 100);
+            // Just update button text, no auto-redirect
+            setTimeout(handleAppRedirect, 50);
         });
     </script>
 </body>
