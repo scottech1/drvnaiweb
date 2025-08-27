@@ -1,0 +1,153 @@
+@@ .. @@
+         // App Store URLs
+         const APP_STORE_URLS = {
+-            ios: 'https://apps.apple.com/app/drvn-ai/idYOUR_APP_ID',
+-            android: 'https://play.google.com/store/apps/details?id=com.sgesdevllc.drvnai'
++            ios: 'https://apps.apple.com/app/drvn-ai/id6738049391',
++            android: 'https://play.google.com/store/apps/details?id=com.sgesdevllc.drvnai'
+         };
+         
+         function detectPlatform() {
+             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+             
+             if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                 return 'ios';
+             }
+             
+             if (/android/i.test(userAgent)) {
+                 return 'android';
+             }
+             
+             return 'web';
+         }
+         
+         function getShareToken() {
+             const path = window.location.pathname;
+             const match = path.match(/\/share\/([a-f0-9]+)/);
+             return match ? match[1] : null;
+         }
+         
+         function showLoading() {
+             document.getElementById('loading').classList.add('show');
+             document.getElementById('downloadBtn').textContent = 'Opening app...';
+             document.getElementById('downloadBtn').disabled = true;
+         }
+         
+         function hideLoading() {
+             document.getElementById('loading').classList.remove('show');
+             document.getElementById('downloadBtn').disabled = false;
+         }
+         
+         function updateButtonForAppStore(platform) {
+             const btn = document.getElementById('downloadBtn');
+             if (platform === 'ios') {
+                 btn.textContent = 'Download from App Store';
+             } else if (platform === 'android') {
+                 btn.textContent = 'Download from Google Play';
+             } else {
+                 btn.textContent = 'Download Drvn AI';
+             }
+         }
+         
+         function startCountdown() {
+             let seconds = 3;
+             const countdownEl = document.getElementById('countdown');
+             
+             const updateCountdown = () => {
+                 if (seconds > 0) {
+                     countdownEl.textContent = `Redirecting to app store in ${seconds} seconds...`;
+                     seconds--;
+                     setTimeout(updateCountdown, 1000);
+                 } else {
+                     const platform = detectPlatform();
+                     const storeUrl = APP_STORE_URLS[platform];
+                     if (storeUrl) {
+                         window.location.href = storeUrl;
+                     }
+                 }
+             };
+             
+             updateCountdown();
+         }
+         
+-        async function tryDeepLink(shareToken) {
++        async function tryUniversalLink(shareToken) {
+             return new Promise((resolve) => {
+-                const deepLink = `drvnai://share/${shareToken}`;
+-                console.log('Attempting deep link:', deepLink);
++                const universalLink = `https://drvnai.app/share/${shareToken}`;
++                console.log('Attempting universal link:', universalLink);
+                 
+-                // Try to open the deep link
+-                window.location.href = deepLink;
++                // Try to open the universal link
++                window.location.href = universalLink;
+                 
+-                // Set a timeout to detect if the deep link worked
++                // Set a timeout to detect if the universal link worked
+                 const timeout = setTimeout(() => {
+-                    resolve(false); // Deep link failed
++                    resolve(false); // Universal link failed
+                 }, 2500);
+                 
+-                // If the page becomes hidden, the deep link likely worked
++                // If the page becomes hidden, the universal link likely worked
+                 const handleVisibilityChange = () => {
+                     if (document.hidden) {
+                         clearTimeout(timeout);
+                         document.removeEventListener('visibilitychange', handleVisibilityChange);
+                         resolve(true); // Deep link succeeded
+                     }
+                 };
+                 
+                 document.addEventListener('visibilitychange', handleVisibilityChange);
+                 
+                 // For iOS, also listen for pagehide event
+                 const handlePageHide = () => {
+                     clearTimeout(timeout);
+                     window.removeEventListener('pagehide', handlePageHide);
+                     resolve(true);
+                 };
+                 
+                 window.addEventListener('pagehide', handlePageHide);
+             });
+         }
+         
+         async function handleAppRedirect() {
+             const platform = detectPlatform();
+             const shareToken = getShareToken();
+             
+             if (platform === 'web') {
+                 // For web users, just show the download button
+                 hideLoading();
+                 return;
+             }
+             
+             if (!shareToken) {
+                 // No share token, just redirect to app store
+                 updateButtonForAppStore(platform);
+                 return;
+             }
+             
+             showLoading();
+             
+             try {
+-                // Try deep link
+-                const deepLinkWorked = await tryDeepLink(shareToken);
++                // Try universal link
++                const universalLinkWorked = await tryUniversalLink(shareToken);
+                 
+-                if (!deepLinkWorked) {
+-                    // Deep link failed, show countdown and redirect to app store
++                if (!universalLinkWorked) {
++                    // Universal link failed, show countdown and redirect to app store
+                     hideLoading();
+                     updateButtonForAppStore(platform);
+                     startCountdown();
+                 }
+             } catch (error) {
+                 console.error('Error during app redirect:', error);
+                 hideLoading();
+                 updateButtonForAppStore(platform);
+             }
+         }

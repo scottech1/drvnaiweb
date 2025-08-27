@@ -207,12 +207,12 @@
     <script>
         // App Store URLs - Update these with your actual app store links
         const APP_STORE_URLS = {
-            ios: 'https://apps.apple.com/us/app/drvnai/id6748619728',
+            ios: 'https://apps.apple.com/app/drvn-ai/id6738049391',
             android: 'https://play.google.com/store/apps/details?id=com.sgesdevllc.drvnai'
         };
         
-        // Deep link scheme
-        const DEEP_LINK_SCHEME = 'drvnai://';
+        // Universal link base
+        const UNIVERSAL_LINK_BASE = 'https://drvnai.app';
         
         function detectPlatform() {
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -249,33 +249,28 @@
             hideLoading();
         }
         
-        function tryDeepLink(shareToken) {
+        function tryAppOpen(shareToken) {
             return new Promise((resolve) => {
-                const deepLink = shareToken 
-                    ? `${DEEP_LINK_SCHEME}share/${shareToken}`
-                    : DEEP_LINK_SCHEME;
+                const universalLink = shareToken
+                    ? `${UNIVERSAL_LINK_BASE}/share/${shareToken}`
+                    : UNIVERSAL_LINK_BASE;
                 
-                console.log('Attempting deep link:', deepLink);
+                console.log('Attempting universal link:', universalLink);
                 
-                // Create a hidden iframe to attempt the deep link
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = deepLink;
-                document.body.appendChild(iframe);
+                // Try to open the universal link
+                window.location.href = universalLink;
                 
-                // Set a timeout to detect if the deep link worked
+                // Set a timeout to detect if the universal link worked
                 const timeout = setTimeout(() => {
-                    document.body.removeChild(iframe);
-                    resolve(false); // Deep link failed
+                    resolve(false); // Universal link failed
                 }, 2000);
                 
-                // If the page becomes hidden, the deep link likely worked
+                // If the page becomes hidden, the universal link likely worked
                 const handleVisibilityChange = () => {
                     if (document.hidden) {
                         clearTimeout(timeout);
-                        document.body.removeChild(iframe);
                         document.removeEventListener('visibilitychange', handleVisibilityChange);
-                        resolve(true); // Deep link succeeded
+                        resolve(true); // Universal link succeeded
                     }
                 };
                 
@@ -284,9 +279,6 @@
                 // For iOS, also listen for pagehide event
                 const handlePageHide = () => {
                     clearTimeout(timeout);
-                    if (document.body.contains(iframe)) {
-                        document.body.removeChild(iframe);
-                    }
                     window.removeEventListener('pagehide', handlePageHide);
                     resolve(true);
                 };
@@ -311,12 +303,12 @@
             showLoading();
             
             try {
-                // Try deep link first
-                const deepLinkWorked = await tryDeepLink(shareToken);
+                // Try universal link first
+                const appOpenWorked = await tryAppOpen(shareToken);
                 
-                if (!deepLinkWorked) {
-                    // Deep link failed, redirect to app store
-                    console.log('Deep link failed, redirecting to app store');
+                if (!appOpenWorked) {
+                    // Universal link failed, redirect to app store
+                    console.log('Universal link failed, redirecting to app store');
                     const storeUrl = APP_STORE_URLS[platform];
                     
                     if (storeUrl) {
