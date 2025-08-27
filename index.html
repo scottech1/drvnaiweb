@@ -212,7 +212,7 @@
         };
         
         // Universal link base
-        const UNIVERSAL_LINK_BASE = 'https://drvnai.app';
+        const UNIVERSAL_LINK_BASE = 'https://drvn-web.vercel.app';
         
         function detectPlatform() {
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -251,26 +251,40 @@
         
         function tryAppOpen(shareToken) {
             return new Promise((resolve) => {
-                const universalLink = shareToken
-                    ? `${UNIVERSAL_LINK_BASE}/share/${shareToken}`
-                    : UNIVERSAL_LINK_BASE;
+                // Try universal link first (for iOS 9+)
+                const universalLink = shareToken 
+                    ? `https://drvn-web.vercel.app/share/${shareToken}`
+                    : 'https://drvn-web.vercel.app/';
                 
                 console.log('Attempting universal link:', universalLink);
                 
-                // Try to open the universal link
+                // Create a hidden iframe to trigger the universal link
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = universalLink;
+                document.body.appendChild(iframe);
+                
+                // Also try direct window location as fallback
                 window.location.href = universalLink;
                 
-                // Set a timeout to detect if the universal link worked
+                // Clean up iframe after attempt
+                setTimeout(() => {
+                    if (iframe.parentNode) {
+                        iframe.parentNode.removeChild(iframe);
+                    }
+                }, 1000);
+                
+                // Set a timeout to detect if the app opened
                 const timeout = setTimeout(() => {
-                    resolve(false); // Universal link failed
+                    resolve(false); // App didn't open
                 }, 2000);
                 
-                // If the page becomes hidden, the universal link likely worked
+                // If the page becomes hidden, the app likely opened
                 const handleVisibilityChange = () => {
                     if (document.hidden) {
                         clearTimeout(timeout);
                         document.removeEventListener('visibilitychange', handleVisibilityChange);
-                        resolve(true); // Universal link succeeded
+                        resolve(true); // App opened successfully
                     }
                 };
                 
