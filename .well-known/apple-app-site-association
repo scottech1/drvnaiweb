@@ -1,0 +1,27 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "B945W964M9.com.sgesdevllc.drvnai"
+        ],
+        "components": [
+          {
+            "/": "/share/*",
+            "comment": "Matches share links like /share/abc123"
+          },
+          {
+            "/": "/",
+            "exclude": true,
+            "comment": "Exclude root domain from universal links"
+          }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "B945W964M9.com.sgesdevllc.drvnai"
+    ]
+  }
+}
