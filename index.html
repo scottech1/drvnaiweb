@@ -207,7 +207,7 @@
     <script>
         // App Store URLs - Update these with your actual app store links
         const APP_STORE_URLS = {
-            ios: 'https://apps.apple.com/in/app/drvnai/id6748619728',
+            ios: 'https://apps.apple.com/app/drvn-ai/id6738049391',
             android: 'https://play.google.com/store/apps/details?id=com.sgesdevllc.drvnai'
         };
         
@@ -303,6 +303,14 @@
         
         async function handleAppRedirect() {
             const platform = detectPlatform();
+            
+            // Check if this is a password reset link
+            const hash = window.location.hash;
+            if (hash.includes('type=recovery') && hash.includes('access_token=')) {
+                console.log('Password reset link detected, redirecting...');
+                window.location.href = '/reset-password/' + hash;
+                return;
+            }
             
             if (platform === 'web') {
                 // For web users, just update button text and stop
