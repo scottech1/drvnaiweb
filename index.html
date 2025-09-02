@@ -340,8 +340,16 @@
             const downloadBtn = document.getElementById('downloadBtn');
             downloadBtn.addEventListener('click', handleDownloadClick);
             
-            // Auto-redirect on mobile platforms
-            // Just update button text, no auto-redirect
+            // Check for password reset link and redirect immediately
+            const hash = window.location.hash;
+            if (hash.includes('type=recovery') && hash.includes('access_token=')) {
+                console.log('Password reset link detected, redirecting with fragments...');
+                // Redirect to reset password page with the hash fragments
+                window.location.href = '/reset-password/' + hash;
+                return;
+            }
+            
+            // Auto-redirect on mobile platforms for normal visits
             setTimeout(handleAppRedirect, 100);
         });
     </script>

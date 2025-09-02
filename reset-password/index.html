@@ -438,11 +438,16 @@
         // Initialize page
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('Page loaded, parsing URL fragments...');
+            console.log('Current URL:', window.location.href);
+            console.log('Hash:', window.location.hash);
             
             const fragments = parseUrlFragments();
+            console.log('Parsed fragments:', fragments);
             
             if (!fragments.accessToken || fragments.type !== 'recovery') {
                 console.error('Invalid reset link - missing access token or wrong type');
+                console.error('Access token exists:', !!fragments.accessToken);
+                console.error('Type is recovery:', fragments.type === 'recovery');
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('errorContainer').style.display = 'block';
                 return;
@@ -450,7 +455,9 @@
             
             try {
                 // Verify the session is valid
+                console.log('Attempting to initialize Supabase with tokens...');
                 await initializeSupabase();
+                console.log('Supabase initialized successfully');
                 
                 // Show the form
                 document.getElementById('loading').style.display = 'none';
@@ -460,8 +467,7 @@
                 console.error('Error verifying reset link:', error);
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('errorContainer').style.display = 'block';
-                document.getElementById('generalError').textContent = 
-                    'Invalid or expired reset link. Please request a new password reset.';
+                document.getElementById('generalError').textContent = `Error: ${error.message}`;
             }
         });
         
