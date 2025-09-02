@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - Drvn AI</title>
+    <meta name="description" content="Reset your Drvn AI account password">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Reset Password - Drvn AI">
+    <meta property="og:description" content="Reset your Drvn AI account password">
+    <meta property="og:image" content="https://drvnai.app/assets/app-icon.png">
+    <meta property="og:url" content="https://drvnai.app/reset-password">
+    <meta property="og:type" content="website">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            margin: 0 auto 24px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+        }
+        
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 32px;
+            line-height: 1.5;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+            background: #fff;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #235DCF;
+            box-shadow: 0 0 0 3px rgba(35, 93, 207, 0.1);
+        }
+        
+        .form-input.error {
+            border-color: #dc3545;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        .reset-button {
+            background: linear-gradient(135deg, #42A5F5, #235DCF);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 16px;
+            transition: transform 0.2s ease;
+        }
+        
+        .reset-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        
+        .reset-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .back-link {
+            display: block;
+            text-align: center;
+            color: #235DCF;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 12px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .back-link:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            color: #666;
+            margin: 20px 0;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .password-requirements {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border-left: 4px solid #235DCF;
+        }
+        
+        .requirement {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .requirement:last-child {
+            margin-bottom: 0;
+        }
+        
+        .requirement.valid {
+            color: #28a745;
+        }
+        
+        .requirement-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: white;
+        }
+        
+        .requirement.valid .requirement-icon {
+            background: #28a745;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 24px;
+                margin: 10px;
+            }
+            
+            .title {
+                font-size: 24px;
+            }
+            
+            .subtitle {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-icon">🚗</div>
+        <h1 class="title">Reset Password</h1>
+        <p class="subtitle">Enter your new password below to complete the reset process.</p>
+        
+        <div id="loading" class="loading">
+            Verifying reset link...
+        </div>
+        
+        <div id="success" class="success-message">
+            Password reset successful! You can now sign in with your new password.
+        </div>
+        
+        <form id="resetForm" style="display: none;">
+            <div class="password-requirements">
+                <div class="requirement" id="req-length">
+                    <span class="requirement-icon">✓</span>
+                    At least 6 characters long
+                </div>
+                <div class="requirement" id="req-match">
+                    <span class="requirement-icon">✓</span>
+                    Passwords match
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="newPassword">New Password</label>
+                <input 
+                    type="password" 
+                    id="newPassword" 
+                    class="form-input" 
+                    placeholder="Enter your new password"
+                    required
+                >
+                <div id="passwordError" class="error-message"></div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="confirmPassword">Confirm Password</label>
+                <input 
+                    type="password" 
+                    id="confirmPassword" 
+                    class="form-input" 
+                    placeholder="Confirm your new password"
+                    required
+                >
+                <div id="confirmError" class="error-message"></div>
+            </div>
+            
+            <button type="submit" id="resetBtn" class="reset-button">
+                Reset Password
+            </button>
+        </form>
+        
+        <div id="errorContainer" style="display: none;">
+            <div class="error-message show" id="generalError">
+                Invalid or expired reset link. Please request a new password reset.
+            </div>
+        </div>
+        
+        <a href="/" class="back-link">← Back to Home</a>
+    </div>
+
+    <script>
+        // Supabase configuration - Update these with your actual values
+        const SUPABASE_URL = 'https://itcneajyfqnfrujzqccu.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0Y25lYWp5ZnFuZnJ1anpxY2N1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU0MzE4NzQsImV4cCI6MjAzMTAwNzg3NH0.YQJWg8rJocJpUJhd7QGLbLQBOqtJGhZJhxJVhJhJVhJ';
+        
+        let accessToken = null;
+        let refreshToken = null;
+        
+        // Parse URL fragments
+        function parseUrlFragments() {
+            const hash = window.location.hash.substring(1);
+            const params = new URLSearchParams(hash);
+            
+            accessToken = params.get('access_token');
+            refreshToken = params.get('refresh_token');
+            const expiresAt = params.get('expires_at');
+            const type = params.get('type');
+            
+            console.log('Parsed URL fragments:', {
+                hasAccessToken: !!accessToken,
+                hasRefreshToken: !!refreshToken,
+                expiresAt,
+                type
+            });
+            
+            return {
+                accessToken,
+                refreshToken,
+                expiresAt,
+                type
+            };
+        }
+        
+        // Initialize Supabase client
+        async function initializeSupabase() {
+            try {
+                // Import Supabase client
+                const { createClient } = await import('https://cdn.skypack.dev/@supabase/supabase-js@2');
+                
+                const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                
+                // Set the session with the tokens from URL
+                if (accessToken && refreshToken) {
+                    const { data, error } = await supabase.auth.setSession({
+                        access_token: accessToken,
+                        refresh_token: refreshToken
+                    });
+                    
+                    if (error) {
+                        console.error('Error setting session:', error);
+                        throw error;
+                    }
+                    
+                    console.log('Session set successfully:', data);
+                    return supabase;
+                } else {
+                    throw new Error('Missing access token or refresh token');
+                }
+            } catch (error) {
+                console.error('Error initializing Supabase:', error);
+                throw error;
+            }
+        }
+        
+        // Validate password requirements
+        function validatePassword(password) {
+            const requirements = {
+                length: password.length >= 6,
+                // Add more requirements as needed
+            };
+            
+            // Update UI indicators
+            updateRequirement('req-length', requirements.length);
+            
+            return Object.values(requirements).every(req => req);
+        }
+        
+        // Validate password match
+        function validatePasswordMatch(password, confirmPassword) {
+            const match = password === confirmPassword && password.length > 0;
+            updateRequirement('req-match', match);
+            return match;
+        }
+        
+        // Update requirement indicator
+        function updateRequirement(elementId, isValid) {
+            const element = document.getElementById(elementId);
+            if (isValid) {
+                element.classList.add('valid');
+            } else {
+                element.classList.remove('valid');
+            }
+        }
+        
+        // Show error message
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+            
+            const inputElement = document.getElementById(elementId.replace('Error', ''));
+            if (inputElement) {
+                inputElement.classList.add('error');
+            }
+        }
+        
+        // Clear error message
+        function clearError(elementId) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.classList.remove('show');
+            
+            const inputElement = document.getElementById(elementId.replace('Error', ''));
+            if (inputElement) {
+                inputElement.classList.remove('error');
+            }
+        }
+        
+        // Reset password function
+        async function resetPassword(newPassword) {
+            try {
+                const supabase = await initializeSupabase();
+                
+                const { data, error } = await supabase.auth.updateUser({
+                    password: newPassword
+                });
+                
+                if (error) {
+                    throw error;
+                }
+                
+                console.log('Password updated successfully:', data);
+                return { success: true };
+                
+            } catch (error) {
+                console.error('Error resetting password:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('Page loaded, parsing URL fragments...');
+            
+            const fragments = parseUrlFragments();
+            
+            if (!fragments.accessToken || fragments.type !== 'recovery') {
+                console.error('Invalid reset link - missing access token or wrong type');
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('errorContainer').style.display = 'block';
+                return;
+            }
+            
+            try {
+                // Verify the session is valid
+                await initializeSupabase();
+                
+                // Show the form
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('resetForm').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error verifying reset link:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('errorContainer').style.display = 'block';
+                document.getElementById('generalError').textContent = 
+                    'Invalid or expired reset link. Please request a new password reset.';
+            }
+        });
+        
+        // Form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('resetForm');
+            const newPasswordInput = document.getElementById('newPassword');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            // Real-time validation
+            newPasswordInput.addEventListener('input', function() {
+                clearError('passwordError');
+                validatePassword(this.value);
+                
+                // Also check match if confirm password has value
+                if (confirmPasswordInput.value) {
+                    validatePasswordMatch(this.value, confirmPasswordInput.value);
+                }
+            });
+            
+            confirmPasswordInput.addEventListener('input', function() {
+                clearError('confirmError');
+                validatePasswordMatch(newPasswordInput.value, this.value);
+            });
+            
+            // Form submission
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const newPassword = newPasswordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+                
+                // Clear previous errors
+                clearError('passwordError');
+                clearError('confirmError');
+                
+                // Validate
+                let hasErrors = false;
+                
+                if (!validatePassword(newPassword)) {
+                    showError('passwordError', 'Password must be at least 6 characters long');
+                    hasErrors = true;
+                }
+                
+                if (!validatePasswordMatch(newPassword, confirmPassword)) {
+                    showError('confirmError', 'Passwords do not match');
+                    hasErrors = true;
+                }
+                
+                if (hasErrors) return;
+                
+                // Show loading state
+                resetBtn.disabled = true;
+                resetBtn.textContent = 'Resetting Password...';
+                
+                try {
+                    const result = await resetPassword(newPassword);
+                    
+                    if (result.success) {
+                        // Show success message
+                        document.getElementById('resetForm').style.display = 'none';
+                        document.getElementById('success').classList.add('show');
+                        
+                        // Redirect after 3 seconds
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 3000);
+                        
+                    } else {
+                        throw new Error(result.error || 'Failed to reset password');
+                    }
+                    
+                } catch (error) {
+                    console.error('Reset error:', error);
+                    showError('passwordError', error.message || 'Failed to reset password. Please try again.');
+                } finally {
+                    resetBtn.disabled = false;
+                    resetBtn.textContent = 'Reset Password';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

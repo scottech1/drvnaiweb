@@ -4,6 +4,9 @@ RewriteEngine On
 # Handle share links - redirect to share page with token
 RewriteRule ^share/([a-f0-9]+)/?$ /share/index.html [L]
 
+# Handle password reset links
+RewriteRule ^reset-password/?$ /reset-password/index.html [L]
+
 # Handle root domain - redirect to main landing page
 RewriteRule ^/?$ /index.html [L]
 
