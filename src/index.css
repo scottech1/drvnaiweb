@@ -1,0 +1,349 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: #333333;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Common styles */
+.container {
+  background: white;
+  border-radius: 24px;
+  padding: 40px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+.app-icon {
+  width: 120px;
+  height: 120px;
+  border-radius: 24px;
+  margin: 0 auto 24px;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: white;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.app-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 32px;
+  line-height: 1.5;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, #42A5F5, #235DCF);
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 16px;
+  transition: transform 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 4px 12px rgba(35, 93, 207, 0.3);
+  border: none;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(35, 93, 207, 0.4);
+}
+
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.features {
+  margin-top: 32px;
+  text-align: left;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.feature-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+  color: #235DCF;
+}
+
+.feature-text {
+  color: #333;
+  font-weight: 500;
+}
+
+.loading {
+  display: none;
+  color: #666;
+  margin: 20px 0;
+}
+
+.loading.show {
+  display: block;
+}
+
+.countdown {
+  font-size: 14px;
+  color: #999;
+  margin-top: 16px;
+}
+
+.error {
+  display: none;
+  color: #dc3545;
+  margin-top: 16px;
+  padding: 12px;
+  background: #f8d7da;
+  border-radius: 8px;
+}
+
+.error.show {
+  display: block;
+}
+
+/* Form styles for reset password */
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.form-input {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid #e1e5e9;
+  border-radius: 12px;
+  font-size: 16px;
+  transition: border-color 0.2s ease;
+  background: #fff;
+  font-family: inherit;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #235DCF;
+  box-shadow: 0 0 0 3px rgba(35, 93, 207, 0.1);
+}
+
+.form-input.error {
+  border-color: #dc3545;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 8px;
+  display: none;
+}
+
+.error-message.show {
+  display: block;
+}
+
+.success-message {
+  background: #d4edda;
+  color: #155724;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+  display: none;
+}
+
+.success-message.show {
+  display: block;
+}
+
+.password-requirements {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  border-left: 4px solid #235DCF;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.requirement {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.requirement:last-child {
+  margin-bottom: 0;
+}
+
+.requirement.valid {
+  color: #28a745;
+}
+
+.requirement-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: white;
+}
+
+.requirement.valid .requirement-icon {
+  background: #28a745;
+}
+
+.back-link {
+  display: block;
+  text-align: center;
+  color: #235DCF;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 12px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.back-link:hover {
+  background-color: #f8f9fa;
+  transform: translateY(-1px);
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Enhanced error styling */
+.error {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  padding: 16px;
+  border-radius: 12px;
+  margin: 16px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.error.show {
+  display: flex;
+}
+
+/* Enhanced success styling */
+.success-message {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.success-message.show {
+  display: flex;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 24px;
+    margin: 10px;
+    position: relative;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+  
+  .subtitle {
+    font-size: 14px;
+  }
+  
+  .back-link {
+    font-size: 14px;
+  }
+}

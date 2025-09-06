@@ -47,7 +47,7 @@ Ensure your domain `drvnai.app` points to this website and can handle:
 ### Features:
 - ✅ Smart platform detection
 - ✅ Deep link attempt with fallback
-- ✅ App store redirection.
+- ✅ App store redirection
 - ✅ Mobile-optimized design
 - ✅ SEO-friendly meta tags
 - ✅ Error handling and fallbacks

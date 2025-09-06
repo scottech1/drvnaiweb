@@ -202,7 +202,7 @@
         async function tryUniversalLink(shareToken) {
             return new Promise((resolve) => {
                 // Try universal link first (for iOS 9+)
-                const universalLink = `https://drvn-web.vercel.app/share/${shareToken}`;
+                const universalLink = `https://mobile.drvnai.app/share/${shareToken}`;
                 console.log('Attempting universal link:', universalLink);
                 
                 // Create a hidden iframe to trigger the universal link

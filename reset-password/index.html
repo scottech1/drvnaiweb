@@ -297,9 +297,9 @@
     </div>
 
     <script>
-        // Supabase configuration - Update these with your actual values
+        // Supabase configuration
         const SUPABASE_URL = 'https://itcneajyfqnfrujzqccu.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0Y25lYWp5ZnFuZnJ1anpxY2N1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NTQzMTk3NSwiZXhwIjoyMDYxMDA3OTc1fQ.6GjmfMiFuX31klHncNQzE27FghW3LuMsWLkhkj1HZbs';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0Y25lYWp5ZnFuZnJ1anpxY2N1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU0MzE4NzQsImV4cCI6MjAzMTAwNzg3NH0.YQJWg8rJocJpUJhd7QGLbLQBOqtJGhZJhxJVhJhJVhJ';
         
         let accessToken = null;
         let refreshToken = null;
@@ -450,6 +450,7 @@
                 console.error('Type is recovery:', fragments.type === 'recovery');
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('errorContainer').style.display = 'block';
+                document.getElementById('generalError').textContent = 'Invalid or expired reset link. Please request a new password reset.';
                 return;
             }
             
