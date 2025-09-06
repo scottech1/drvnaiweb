@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
 import { Lock, Eye, EyeOff, CheckCircle, AlertTriangle, ArrowLeft } from 'lucide-react'
 
 const SUPABASE_URL = 'https://itcneajyfqnfrujzqccu.supabase.co'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0Y25lYWp5ZnFuZnJ1anpxY2N1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU0MzE4NzQsImV4cCI6MjAzMTAwNzg3NH0.YQJWg8rJocJpUJhd7QGLbLQBOqtJGhZJhxJVhJhJVhJ'
 
 export default function ResetPasswordPage() {
   const [newPassword, setNewPassword] = useState('')
@@ -14,68 +12,44 @@ export default function ResetPasswordPage() {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [initializing, setInitializing] = useState(true)
-  const [supabase, setSupabase] = useState<any>(null)
+  const [resetToken, setResetToken] = useState<string | null>(null)
 
   useEffect(() => {
     console.log('ResetPasswordPage mounted')
     console.log('Current URL:', window.location.href)
+    console.log('Search params:', window.location.search)
     console.log('Hash:', window.location.hash)
     
-    // Small delay to ensure hash is available
-    setTimeout(() => {
-      initializeSupabase()
-    }, 100)
-  }, [])
-
-  const parseUrlFragments = () => {
-    const hash = window.location.hash.substring(1)
-    const params = new URLSearchParams(hash)
+    // Check for token in URL parameters (custom system)
+    const urlParams = new URLSearchParams(window.location.search)
+    const tokenFromParams = urlParams.get('token')
     
-    return {
-      accessToken: params.get('access_token'),
-      refreshToken: params.get('refresh_token'),
-      expiresAt: params.get('expires_at'),
-      type: params.get('type')
-    }
-  }
-
-  const initializeSupabase = async () => {
-    try {
-      console.log('Initializing Supabase...')
-      const fragments = parseUrlFragments()
-      console.log('Parsed fragments:', fragments)
-      
-      if (!fragments.accessToken || fragments.type !== 'recovery') {
-        console.error('Invalid fragments:', { 
-          hasAccessToken: !!fragments.accessToken, 
-          type: fragments.type 
-        })
-        throw new Error('Invalid or missing reset token')
-      }
-
-      const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-      
-      // Set the session with the tokens from URL
-      const { data, error } = await client.auth.setSession({
-        access_token: fragments.accessToken,
-        refresh_token: fragments.refreshToken || ''
-      })
-      
-      if (error) {
-        console.error('Session error:', error)
-        throw error
-      }
-      
-      console.log('Session set successfully')
-      
-      setSupabase(client)
+    // Check for token in hash fragments (Supabase system)
+    const hashParams = new URLSearchParams(window.location.hash.substring(1))
+    const tokenFromHash = hashParams.get('access_token')
+    const typeFromHash = hashParams.get('type')
+    
+    console.log('Token from params:', tokenFromParams ? tokenFromParams.substring(0, 8) + '...' : 'none')
+    console.log('Token from hash:', tokenFromHash ? tokenFromHash.substring(0, 8) + '...' : 'none')
+    console.log('Type from hash:', typeFromHash)
+    
+    if (tokenFromParams) {
+      // Custom token system
+      setResetToken(tokenFromParams)
       setInitializing(false)
-    } catch (err: any) {
-      console.error('Error initializing:', err)
-      setError(err.message || 'Invalid or expired reset link')
+      console.log('Using custom token system')
+    } else if (tokenFromHash && typeFromHash === 'recovery') {
+      // Supabase token system
+      setResetToken(tokenFromHash)
       setInitializing(false)
+      console.log('Using Supabase token system')
+    } else {
+      // No valid token found
+      setError('Invalid or missing reset token. Please request a new password reset.')
+      setInitializing(false)
+      console.log('No valid token found')
     }
-  }
+  }, [])
 
   const validatePassword = (password: string) => {
     return {
@@ -87,8 +61,8 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!supabase) {
-      setError('Session not initialized')
+    if (!resetToken) {
+      setError('No reset token available')
       return
     }
 
@@ -108,20 +82,63 @@ export default function ResetPasswordPage() {
     setError(null)
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword
+      console.log('Attempting password reset with token:', resetToken.substring(0, 8) + '...')
+      
+      // Try custom token system first
+      let response = await fetch(`${SUPABASE_URL}/functions/v1/reset-password-with-token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: resetToken,
+          newPassword: newPassword
+        }),
       })
+
+      let result = await response.json()
       
-      if (error) throw error
+      if (!response.ok && response.status === 404) {
+        // Custom system not available, try Supabase auth system
+        console.log('Custom system not available, trying Supabase auth...')
+        
+        // Import Supabase client dynamically
+        const { createClient } = await import('https://cdn.skypack.dev/@supabase/supabase-js@2')
+        const supabase = createClient(SUPABASE_URL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0Y25lYWp5ZnFuZnJ1anpxY2N1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU0MzE4NzQsImV4cCI6MjAzMTAwNzg3NH0.YQJWg8rJocJpUJhd7QGLbLQBOqtJGhZJhxJVhJhJVhJ')
+        
+        // Set session with the token
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: resetToken,
+          refresh_token: resetToken // Use same token as fallback
+        })
+        
+        if (sessionError) throw sessionError
+        
+        // Update password
+        const { error: updateError } = await supabase.auth.updateUser({
+          password: newPassword
+        })
+        
+        if (updateError) throw updateError
+        
+        result = { success: true }
+      } else if (!response.ok) {
+        throw new Error(result.error || 'Failed to reset password')
+      }
       
-      setSuccess(true)
-      
-      // Redirect after 3 seconds
-      setTimeout(() => {
-        window.location.href = '/'
-      }, 3000)
+      if (result.success) {
+        setSuccess(true)
+        
+        // Redirect after 3 seconds
+        setTimeout(() => {
+          window.location.href = '/'
+        }, 3000)
+      } else {
+        throw new Error(result.error || 'Failed to reset password')
+      }
       
     } catch (err: any) {
+      console.error('Password reset error:', err)
       setError(err.message || 'Failed to reset password')
     } finally {
       setLoading(false)
@@ -133,9 +150,6 @@ export default function ResetPasswordPage() {
   if (initializing) {
     return (
       <div className="container">
-        <div className="app-icon">
-          <img src="/assets/app-icon.png" alt="Drvn AI" />
-        </div>
         <div className="app-icon">
           <img src="/assets/app-icon.png" alt="Drvn AI" />
         </div>
@@ -162,7 +176,7 @@ export default function ResetPasswordPage() {
     )
   }
 
-  if (error && !supabase) {
+  if (error && !resetToken) {
     return (
       <div className="container">
         <div className="app-icon">
@@ -315,8 +329,10 @@ export default function ResetPasswordPage() {
 
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label className="form-label" htmlFor="newPassword">New Password</label>
+          <label className="form-label" htmlFor="newPassword">
             <Lock size={16} style={{ marginRight: '8px', display: 'inline' }} />
+            New Password
+          </label>
           <div style={{ position: 'relative' }}>
             <input
               type={showPassword ? 'text' : 'password'}
@@ -355,8 +371,10 @@ export default function ResetPasswordPage() {
         </div>
 
         <div className="form-group">
-          <label className="form-label" htmlFor="confirmPassword">Confirm Password</label>
+          <label className="form-label" htmlFor="confirmPassword">
             <Lock size={16} style={{ marginRight: '8px', display: 'inline' }} />
+            Confirm Password
+          </label>
           <div style={{ position: 'relative' }}>
             <input
               type={showConfirmPassword ? 'text' : 'password'}
