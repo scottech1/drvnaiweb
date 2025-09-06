@@ -166,12 +166,6 @@ export default function ResetPasswordPage() {
             margin: '0 auto'
           }}></div>
         </div>
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
       </div>
     )
   }
@@ -252,21 +246,7 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="container">
-      <a href="/" className="back-link" style={{ 
-        position: 'absolute', 
-        top: '20px', 
-        left: '20px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        padding: '8px 16px',
-        backgroundColor: 'rgba(255,255,255,0.9)',
-        borderRadius: '12px',
-        textDecoration: 'none',
-        color: '#235DCF',
-        fontWeight: '500',
-        fontSize: '14px'
-      }}>
+      <a href="/" className="back-link-top">
         <ArrowLeft size={16} />
         Back to Home
       </a>
@@ -333,7 +313,7 @@ export default function ResetPasswordPage() {
             <Lock size={16} style={{ marginRight: '8px', display: 'inline' }} />
             New Password
           </label>
-          <div style={{ position: 'relative' }}>
+          <div className="input-container">
             <input
               type={showPassword ? 'text' : 'password'}
               id="newPassword"
@@ -342,28 +322,11 @@ export default function ResetPasswordPage() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
-              style={{
-                paddingRight: '50px'
-              }}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              style={{
-                position: 'absolute',
-                right: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: '#969696',
-                padding: '8px',
-                borderRadius: '4px',
-                transition: 'background-color 0.2s ease'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              className="password-toggle"
             >
               {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
@@ -375,7 +338,7 @@ export default function ResetPasswordPage() {
             <Lock size={16} style={{ marginRight: '8px', display: 'inline' }} />
             Confirm Password
           </label>
-          <div style={{ position: 'relative' }}>
+          <div className="input-container">
             <input
               type={showConfirmPassword ? 'text' : 'password'}
               id="confirmPassword"
@@ -384,28 +347,11 @@ export default function ResetPasswordPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              style={{
-                paddingRight: '50px'
-              }}
             />
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              style={{
-                position: 'absolute',
-                right: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: '#969696',
-                padding: '8px',
-                borderRadius: '4px',
-                transition: 'background-color 0.2s ease'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              className="password-toggle"
             >
               {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
@@ -416,23 +362,10 @@ export default function ResetPasswordPage() {
           type="submit" 
           className="primary-button"
           disabled={loading || !requirements.length || !requirements.match}
-          style={{
-            opacity: (loading || !requirements.length || !requirements.match) ? 0.6 : 1,
-            cursor: (loading || !requirements.length || !requirements.match) ? 'not-allowed' : 'pointer'
-          }}
         >
           {loading ? (
             <>
-              <div style={{ 
-                width: '16px', 
-                height: '16px', 
-                border: '2px solid rgba(255,255,255,0.3)', 
-                borderTop: '2px solid white', 
-                borderRadius: '50%', 
-                animation: 'spin 1s linear infinite',
-                marginRight: '8px',
-                display: 'inline-block'
-              }}></div>
+              <div className="loading-spinner"></div>
               Resetting Password...
             </>
           ) : (
@@ -443,13 +376,6 @@ export default function ResetPasswordPage() {
           )}
         </button>
       </form>
-
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   )
 }
