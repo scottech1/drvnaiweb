@@ -10,7 +10,7 @@ In both `index.html` and `share/index.html`, update these URLs with your actual 
 
 ```javascript
 const APP_STORE_URLS = {
-    ios: 'https://apps.apple.com/app/drvn-ai/idYOUR_APP_ID', // Replace YOUR_APP_ID
+    ios: 'https://apps.apple.com/in/app/drvnai/id6748619728', // Replace YOUR_APP_ID
     android: 'https://play.google.com/store/apps/details?id=com.sgesdevllc.drvnai'
 };
 ```
