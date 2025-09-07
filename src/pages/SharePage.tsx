@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { Download, Car } from 'lucide-react'
 
 const APP_STORE_URLS = {
-  ios: 'https://apps.apple.com/in/app/drvnai/id6748619728',
+  ios: 'https://apps.apple.com/app/id6748619728',
   android: 'https://play.google.com/store/apps/details?id=com.sgesdevllc.drvnai'
 }
 
@@ -34,47 +34,49 @@ export default function SharePage() {
   const tryUniversalLink = async (shareToken: string): Promise<boolean> => {
     return new Promise((resolve) => {
       const universalLink = `https://mobile.drvnai.app/share/${shareToken}`
+      const deepLink = `drvnai://share/${shareToken}`
+      console.log('Attempting universal link:', universalLink)
+      console.log('Attempting deep link:', deepLink)
       
-      // Create a hidden iframe to trigger the universal link
-      const iframe = document.createElement('iframe')
-      iframe.style.display = 'none'
-      iframe.src = universalLink
-      document.body.appendChild(iframe)
+      let appOpened = false
       
-      // Also try direct window location as fallback
-      window.location.href = universalLink
-      
-      // Clean up iframe after attempt
-      setTimeout(() => {
-        if (iframe.parentNode) {
-          iframe.parentNode.removeChild(iframe)
-        }
-      }, 1000)
-      
-      // Set a timeout to detect if the app opened
-      const timeout = setTimeout(() => {
-        resolve(false) // Universal link failed
-      }, 2500)
-      
-      // If the page becomes hidden, the app likely opened
       const handleVisibilityChange = () => {
         if (document.hidden) {
-          clearTimeout(timeout)
-          document.removeEventListener('visibilitychange', handleVisibilityChange)
-          resolve(true) // App opened successfully
+          appOpened = true
+          resolve(true)
         }
       }
       
-      document.addEventListener('visibilitychange', handleVisibilityChange)
-      
-      // For iOS, also listen for pagehide event
-      const handlePageHide = () => {
-        clearTimeout(timeout)
-        window.removeEventListener('pagehide', handlePageHide)
+      const handleBlur = () => {
+        appOpened = true
         resolve(true)
       }
       
-      window.addEventListener('pagehide', handlePageHide)
+      // Add event listeners
+      document.addEventListener('visibilitychange', handleVisibilityChange)
+      window.addEventListener('blur', handleBlur)
+      
+      // Try deep link first, then universal link
+      try {
+        window.location.href = deepLink
+        
+        // Fallback to universal link after short delay
+        setTimeout(() => {
+          if (!appOpened) {
+            window.location.href = universalLink
+          }
+        }, 1000)
+      } catch (error) {
+        console.log('Deep link failed, trying universal link:', error)
+        window.location.href = universalLink
+      }
+      
+      // Set a timeout to detect if the app opened
+      const timeout = setTimeout(() => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
+        window.removeEventListener('blur', handleBlur)
+        resolve(false) // Universal link failed
+      }, 2500)
     })
   }
 
@@ -106,18 +108,28 @@ export default function SharePage() {
         
         if (!deepLinkWorked) {
           setLoading(false)
+          // Start countdown before navigating to app store
           startCountdown()
           return
         }
       } catch (error) {
         console.error('Error during deep link:', error)
         setLoading(false)
+        startCountdown()
+        return
       }
+    } else {
+      startCountdown()
     }
+  }
+
+  const navigateToAppStore = () => {
+    console.log('Navigating to app store for platform:', platform)
     
-    // Simple, reliable navigation that works in all browsers including Safari
     const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.ios
     console.log('Direct navigation to:', storeUrl)
+    
+    // Use window.location.href for most reliable navigation
     window.location.href = storeUrl
   }
 
@@ -126,11 +138,11 @@ export default function SharePage() {
     
     switch (platform) {
       case 'ios':
-        return 'Download from App Store'
+        return 'Open in App Store'
       case 'android':
-        return 'Download from Google Play'
+        return 'Open in Google Play'
       default:
-        return 'Download Drvn AI'
+        return 'Download App'
     }
   }
 
