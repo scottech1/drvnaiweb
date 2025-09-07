@@ -36,10 +36,8 @@ export default function HomePage() {
   }, [])
 
   const handleDownloadClick = () => {
-    const storeUrl = APP_STORE_URLS[platform]
-    if (storeUrl) {
+    const storeUrl = 'https://apps.apple.com/in/app/drvnai/id6748619728'
       window.open(storeUrl, '_blank')
-    }
   }
 
   const getButtonText = () => {
@@ -64,7 +62,7 @@ export default function HomePage() {
         Track your vehicles, maintenance, and modifications with AI-powered insights.
       </p>
       
-      <button onClick={handleDownloadClick} className="primary-button">
+      <button onClick={() => handleDownloadClick()} className="primary-button">
         <Download size={20} style={{ marginRight: '8px', display: 'inline' }} />
         {getButtonText()}
       </button>
