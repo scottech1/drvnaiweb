@@ -22,6 +22,7 @@ function detectPlatform() {
 
 export default function HomePage() {
   const [platform, setPlatform] = useState<'ios' | 'android' | 'web'>('web')
+  const [isNavigating, setIsNavigating] = useState(false)
 
   useEffect(() => {
     // Check for password reset link and redirect
@@ -35,14 +36,55 @@ export default function HomePage() {
     setPlatform(detectPlatform())
   }, [])
 
-  const handleDownloadClick = () => {
-    const storeUrl = APP_STORE_URLS[platform]
-    if (storeUrl) {
-      window.open(storeUrl, '_blank')
+  const handleDownloadClick = async () => {
+    setIsNavigating(true)
+    
+    try {
+      // For Safari on iOS, use a more direct approach
+      if (platform === 'ios') {
+        // Create a temporary anchor element for better Safari compatibility
+        const link = document.createElement('a')
+        link.href = APP_STORE_URLS.ios
+        link.target = '_blank'
+        link.rel = 'noopener noreferrer'
+        
+        // Add to DOM temporarily
+        document.body.appendChild(link)
+        
+        // Trigger click
+        link.click()
+        
+        // Clean up
+        document.body.removeChild(link)
+        
+        // Fallback: try window.open after a short delay
+        setTimeout(() => {
+          window.open(APP_STORE_URLS.ios, '_blank', 'noopener,noreferrer')
+        }, 100)
+        
+        // Additional fallback: direct window location
+        setTimeout(() => {
+          window.location.href = APP_STORE_URLS.ios
+        }, 500)
+      } else {
+        // For Android and other platforms
+        const storeUrl = APP_STORE_URLS[platform]
+        if (storeUrl) {
+          window.open(storeUrl, '_blank', 'noopener,noreferrer')
+        }
+      }
+    } catch (error) {
+      console.error('Navigation error:', error)
+      // Final fallback
+      window.location.href = APP_STORE_URLS[platform]
+    } finally {
+      setTimeout(() => setIsNavigating(false), 2000)
     }
   }
 
   const getButtonText = () => {
+    if (isNavigating) return 'Opening App Store...'
+    
     switch (platform) {
       case 'ios':
         return 'Download from App Store'
