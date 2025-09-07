@@ -37,7 +37,7 @@ export default function HomePage() {
 
   const handleDownloadClick = () => {
     const storeUrl = 'https://apps.apple.com/in/app/drvnai/id6748619728'
-      window.open(storeUrl, '_blank')
+     window.location.href = storeUrl
   }
 
   const getButtonText = () => {
