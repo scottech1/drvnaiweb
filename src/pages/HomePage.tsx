@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react'
 import { Download, Car, Wrench, Zap, MessageCircle } from 'lucide-react'
 
 const APP_STORE_URLS = {
-  ios: 'https://itunes.apple.com/app/id6748619728?mt=8',
+  ios: 'https://apps.apple.com/app/drvn-ai/id6748619728',
   android: 'https://play.google.com/store/apps/details?id=com.sgesdevllc.drvnai'
 }
 
-const DEEP_LINK_URLS = {
-  ios: 'drvnai://',
-  android: 'drvnai://'
+const DEEP_LINKS = {
+  universal: 'https://mobile.drvnai.app/',
+  custom: 'drvnai://'
 }
+
 function detectPlatform() {
   const userAgent = navigator.userAgent || (navigator as any).vendor || (window as any).opera
   
@@ -24,119 +25,200 @@ function detectPlatform() {
   return 'web'
 }
 
-function tryDeepLink(platform: 'ios' | 'android' | 'web'): Promise<boolean> {
+function detectAppInstallation(): Promise<{ isInstalled: boolean; method?: string }> {
   return new Promise((resolve) => {
-    if (platform === 'web') {
-      resolve(false)
-      return
-    }
-
-    const deepLinkUrl = DEEP_LINK_URLS[platform]
-    console.log('Trying deep link:', deepLinkUrl)
+    console.log('🔍 Detecting app installation...')
     
-    // Track if user leaves the page (app opened)
+    // Track if app opens (user leaves page)
     let appOpened = false
+    let detectionMethod = ''
     
     const handleVisibilityChange = () => {
       if (document.hidden) {
+        console.log('✅ App detected via visibilitychange')
         appOpened = true
-        resolve(true)
+        detectionMethod = 'visibilitychange'
       }
     }
     
     const handleBlur = () => {
+      console.log('✅ App detected via blur')
       appOpened = true
-      resolve(true)
+      detectionMethod = 'blur'
     }
     
-    // Add event listeners
+    const handleFocus = () => {
+      // If page regains focus quickly, app probably didn't open
+      setTimeout(() => {
+        if (!appOpened) {
+          console.log('❌ Page regained focus - app likely not installed')
+        }
+      }, 100)
+    }
+    
+    // Add event listeners for app detection
     document.addEventListener('visibilitychange', handleVisibilityChange)
     window.addEventListener('blur', handleBlur)
+    window.addEventListener('focus', handleFocus)
     
-    // Try to open the app
+    // Try multiple deep link approaches
     try {
-      window.location.href = deepLinkUrl
+      console.log('🚀 Trying custom scheme:', DEEP_LINKS.custom)
+      
+      // Method 1: Try custom scheme
+      const iframe = document.createElement('iframe')
+      iframe.style.display = 'none'
+      iframe.src = DEEP_LINKS.custom
+      document.body.appendChild(iframe)
+      
+      // Method 2: Try universal link after short delay
+      setTimeout(() => {
+        if (!appOpened) {
+          console.log('🚀 Trying universal link:', DEEP_LINKS.universal)
+          window.location.href = DEEP_LINKS.universal
+        }
+      }, 500)
+      
+      // Clean up iframe
+      setTimeout(() => {
+        if (iframe.parentNode) {
+          iframe.parentNode.removeChild(iframe)
+        }
+      }, 1000)
+      
     } catch (error) {
-      console.log('Deep link failed:', error)
+      console.log('❌ Deep link attempt failed:', error)
     }
     
-    // Set timeout to detect if app didn't open
+    // Final detection timeout
     setTimeout(() => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('blur', handleBlur)
+      window.removeEventListener('focus', handleFocus)
       
-      if (!appOpened) {
-        console.log('Deep link failed - app not installed or not working')
-        resolve(false)
+      if (appOpened) {
+        console.log(`✅ App is installed (detected via ${detectionMethod})`)
+        resolve({ isInstalled: true, method: detectionMethod })
+      } else {
+        console.log('❌ App is not installed or failed to open')
+        resolve({ isInstalled: false })
       }
-    }, 2500)
+    }, 3000)
   })
 }
+
 export default function HomePage() {
   const [platform, setPlatform] = useState<'ios' | 'android' | 'web'>('web')
   const [loading, setLoading] = useState(false)
+  const [appInstalled, setAppInstalled] = useState<boolean | null>(null)
+  const [buttonText, setButtonText] = useState('Check App...')
 
   useEffect(() => {
-    // Check for password reset link and redirect
-    const hash = window.location.hash
-    if (hash.includes('type=recovery') && hash.includes('access_token=')) {
-      console.log('Password reset link detected, redirecting with fragments...')
-      window.location.href = '/reset-password' + hash
-      return
+    const detectedPlatform = detectPlatform()
+    setPlatform(detectedPlatform)
+    
+    // Only check for app installation on mobile platforms
+    if (detectedPlatform !== 'web') {
+      checkAppInstallation()
+    } else {
+      setAppInstalled(false)
+      setButtonText('Download App')
     }
-
-    setPlatform(detectPlatform())
   }, [])
 
-  const handleDownloadClick = async () => {
-    if (loading) return
-    
-    setLoading(true)
-    console.log('Download clicked for platform:', platform)
-    
+  const checkAppInstallation = async () => {
     try {
-      // First try to open the app if it's mobile
-      if (platform !== 'web') {
-        console.log('Trying to open app first...')
-        const appOpened = await tryDeepLink(platform)
-        
-        if (appOpened) {
-          console.log('App opened successfully')
-          setLoading(false)
-          return
-        }
-        
-        console.log('App not installed or failed to open, redirecting to store...')
+      setLoading(true)
+      setButtonText('Checking app...')
+      
+      const result = await detectAppInstallation()
+      
+      setAppInstalled(result.isInstalled)
+      
+      if (result.isInstalled) {
+        setButtonText('Open Drvn AI App')
+      } else {
+        setButtonText(platform === 'ios' ? 'Download from App Store' : 'Download from Google Play')
       }
-      
-      // App didn't open or it's web platform, go to store
-      const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.ios
-      console.log('Navigating to store:', storeUrl)
-      
-      // Use direct navigation - most reliable
-      window.location.href = storeUrl
-      
     } catch (error) {
-      console.error('Navigation error:', error)
-      // Fallback to direct store navigation
-      const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.ios
-      window.location.href = storeUrl
+      console.error('Error checking app installation:', error)
+      setAppInstalled(false)
+      setButtonText('Download App')
     } finally {
-      // Reset loading after a delay
-      setTimeout(() => setLoading(false), 2000)
+      setLoading(false)
     }
   }
 
-  const getButtonText = () => {
-    if (loading) return 'Opening...'
+  const getAppStoreUrl = () => {
+    return APP_STORE_URLS[platform] || APP_STORE_URLS.ios
+  }
+
+  const handleButtonClick = async () => {
+    if (loading) return
     
-    switch (platform) {
-      case 'ios':
-        return 'Download from App Store'
-      case 'android':
-        return 'Download from Google Play'
-      default:
-        return 'Download App'
+    setLoading(true)
+    
+    if (appInstalled === true) {
+      // App is installed - try to open it
+      console.log('📱 App is installed, attempting to open...')
+      setButtonText('Opening app...')
+      
+      try {
+        // Try to open the app
+        const result = await detectAppInstallation()
+        
+        if (!result.isInstalled) {
+          // App failed to open, maybe it was uninstalled
+          console.log('🔄 App failed to open, redirecting to store...')
+          setButtonText('Redirecting to store...')
+          setTimeout(() => {
+            window.open(getAppStoreUrl(), '_blank')
+          }, 500)
+        }
+      } catch (error) {
+        console.error('Error opening app:', error)
+        window.open(getAppStoreUrl(), '_blank')
+      }
+    } else {
+      // App is not installed - go to store
+      console.log('📦 App not installed, redirecting to store...')
+      setButtonText('Opening store...')
+      
+      setTimeout(() => {
+        window.open(getAppStoreUrl(), '_blank')
+      }, 500)
+    }
+
+    // Reset loading after delay
+    setTimeout(() => {
+      setLoading(false)
+      if (appInstalled === true) {
+        setButtonText('Open Drvn AI App')
+      } else {
+        setButtonText(platform === 'ios' ? 'Download from App Store' : 'Download from Google Play')
+      }
+    }, 2000)
+  }
+
+  const handleDownloadClick = async () => {
+    if (loading) return
+    if (platform !== 'web') {
+      setPlatform(detectPlatform())
+    }
+  }
+
+  const getStatusMessage = () => {
+    if (loading) return 'Checking for app installation...'
+    if (appInstalled === true) return 'App detected on your device'
+    if (appInstalled === false) return 'App not found - download to get started'
+    return 'Checking app status...'
+  }
+
+  const getButtonIcon = () => {
+    if (appInstalled === true) {
+      return <Car size={20} style={{ marginRight: '8px', display: 'inline' }} />
+    } else {
+      return <Download size={20} style={{ marginRight: '8px', display: 'inline' }} />
     }
   }
 
@@ -148,17 +230,23 @@ export default function HomePage() {
       
       <h1 className="title">Drvn AI</h1>
       <p className="subtitle">
-        Track your vehicles, maintenance, and modifications with AI-powered insights.
+        {getStatusMessage()}
       </p>
       
       <button 
-        onClick={handleDownloadClick} 
+        onClick={handleButtonClick} 
         className="primary-button"
         disabled={loading}
       >
-        <Download size={20} style={{ marginRight: '8px', display: 'inline' }} />
-        {getButtonText()}
+        {getButtonIcon()}
+        {buttonText}
       </button>
+      
+      {appInstalled === false && (
+        <p className="subtitle" style={{ marginTop: '16px', fontSize: '14px' }}>
+          Track your vehicles, maintenance, and modifications with AI-powered insights.
+        </p>
+      )}
       
       <div className="features">
         <div className="feature">
