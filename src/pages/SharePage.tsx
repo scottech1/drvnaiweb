@@ -111,7 +111,7 @@ const handleDownloadClick = async () => {
     try {
       alert('deepLinkWorked')
       const deepLinkWorked = await tryUniversalLink(token)
-      alert(deepLinkWorked);
+      alert('deepLinkWorked'+ deepLinkWorked);
       if (!deepLinkWorked) {
         setLoading(false)
         startCountdown() // will redirect after countdown
