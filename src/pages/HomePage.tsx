@@ -35,12 +35,25 @@ export default function HomePage() {
     setPlatform(detectPlatform())
   }, [])
 
-  const handleDownloadClick = () => {
-    // Simple, reliable navigation that works in all browsers including Safari
-    const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.ios
-    console.log('Navigating to:', storeUrl)
+const handleDownloadClick = () => {
+  const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.ios
+
+  if (platform === 'ios') {
+    // Try opening the app via universal link
+    const universalLink = 'https://mobile.drvnai.app/'  // <-- your universal link domain
+
+    // Attempt app open
+    window.location.href = universalLink
+
+    // Fallback: after ~2.5s, redirect to App Store
+    setTimeout(() => {
+      window.location.href = storeUrl
+    }, 2500)
+  } else {
+    // Android + Web fallback directly to store
     window.location.href = storeUrl
   }
+}
 
   const getButtonText = () => {
     switch (platform) {
@@ -64,7 +77,7 @@ export default function HomePage() {
         Track your vehicles, maintenance, and modifications with AI-powered insights.
       </p>
       
-      <button onClick={handleDownloadClick} className="primary-button">
+      <button onClick={() => handleDownloadClick()} className="primary-button">
         <Download size={20} style={{ marginRight: '8px', display: 'inline' }} />
         {getButtonText()}
       </button>
