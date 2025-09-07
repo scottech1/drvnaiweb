@@ -89,7 +89,7 @@ export default function SharePage() {
         seconds--
         setTimeout(updateCountdown, 1000)
       } else {
-        const storeUrl = APP_STORE_URLS[platform]
+        const storeUrl = ''
         if (storeUrl) {
           window.location.href = storeUrl
         }
@@ -100,6 +100,7 @@ export default function SharePage() {
   }
 
   const handleDownloadClick = async () => {
+    alert(token)
     if (platform !== 'web' && token) {
       setLoading(true)
       
@@ -118,9 +119,9 @@ export default function SharePage() {
     }
     
     // Fallback to app store
-    const storeUrl = APP_STORE_URLS[platform]
+    const storeUrl = 'https://apps.apple.com/in/app/drvnai/id6748619728'
     if (storeUrl) {
-      window.open(storeUrl, '_blank')
+        window.location.href = storeUrl
     }
   }
 
@@ -149,7 +150,7 @@ export default function SharePage() {
       </p>
       
       <button 
-        onClick={handleDownloadClick} 
+        onClick={() =>handleDownloadClick()} 
         className="primary-button"
         disabled={loading}
       >
