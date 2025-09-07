@@ -89,7 +89,7 @@ export default function HomePage() {
       if (result.isInstalled) {
         setButtonText('Open Drvn AI App')
       } else {
-        setButtonText(platform === 'ios' ? 'Download from App Store' : 'Download from Google Play')
+        setButtonText(platform === 'ios' ? 'Download from App Store' : 'Download APP')
       }
     } catch (error) {
       console.error('Error checking app installation:', error)
