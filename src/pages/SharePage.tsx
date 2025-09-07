@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom'
 import { Download, Car } from 'lucide-react'
 
 const APP_STORE_URLS = {
-  
   ios: 'https://apps.apple.com/in/app/drvnai/id6748619728',
   android: 'https://play.google.com/store/apps/details?id=com.sgesdevllc.drvnai'
 }
@@ -89,7 +88,7 @@ export default function SharePage() {
         seconds--
         setTimeout(updateCountdown, 1000)
       } else {
-        const storeUrl = ''
+        const storeUrl = APP_STORE_URLS[platform]
         if (storeUrl) {
           window.location.href = storeUrl
         }
@@ -100,7 +99,6 @@ export default function SharePage() {
   }
 
   const handleDownloadClick = async () => {
-    alert(token)
     if (platform !== 'web' && token) {
       setLoading(true)
       
@@ -119,9 +117,9 @@ export default function SharePage() {
     }
     
     // Fallback to app store
-    const storeUrl = 'https://apps.apple.com/in/app/drvnai/id6748619728'
+    const storeUrl = APP_STORE_URLS[platform]
     if (storeUrl) {
-        window.location.href = storeUrl
+      window.open(storeUrl, '_blank')
     }
   }
 
@@ -150,7 +148,7 @@ export default function SharePage() {
       </p>
       
       <button 
-        onClick={() =>handleDownloadClick()} 
+        onClick={handleDownloadClick} 
         className="primary-button"
         disabled={loading}
       >
