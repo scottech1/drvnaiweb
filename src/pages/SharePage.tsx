@@ -32,10 +32,11 @@ export default function SharePage() {
   }, [])
 
   const tryUniversalLink = async (shareToken: string): Promise<boolean> => {
+    alert('universal link')
     return new Promise((resolve) => {
       const universalLink = `https://mobile.drvnai.app/share/${shareToken}`
       console.log('Attempting universal link:', universalLink)
-      
+       alert('universal link inside')
       // Create a hidden iframe to trigger the universal link
       const iframe = document.createElement('iframe')
       iframe.style.display = 'none'
@@ -44,6 +45,7 @@ export default function SharePage() {
       
       // Also try direct window location as fallback
       window.location.href = universalLink
+       alert('universal link inside 2')
       
       // Clean up iframe after attempt
       setTimeout(() => {
@@ -59,6 +61,7 @@ export default function SharePage() {
       
       // If the page becomes hidden, the app likely opened
       const handleVisibilityChange = () => {
+        alert('VISIBILiTY')
         if (document.hidden) {
           clearTimeout(timeout)
           document.removeEventListener('visibilitychange', handleVisibilityChange)
@@ -79,38 +82,50 @@ export default function SharePage() {
     })
   }
 
-  const startCountdown = () => {
- 
-        const storeUrl = APP_STORE_URLS['ios']
-        if (storeUrl) {
-          window.location.href = storeUrl
-        }    
+ const startCountdown = () => {
+  let seconds = 3
+
+  alert(seconds);
+  const updateCountdown = () => {
+    if (seconds > 0) {
+      setCountdown(`Redirecting to ${platform === 'ios' ? 'App Store' : 'Google Play'} in ${seconds} seconds...`)
+      seconds--
+      setTimeout(updateCountdown, 1000)
+    } else {
+     
+      const storeUrl =  APP_STORE_URLS.ios
+       alert(storeUrl);
+      window.location.href = storeUrl
+    }
   }
 
-  const handleDownloadClick = async () => {
-    if (platform !== 'web' && token) {
-      setLoading(true)
-      
-      try {
-        const deepLinkWorked = await tryUniversalLink(token)
-        
-        if (!deepLinkWorked) {
-          setLoading(false)
-          startCountdown()
-          return
-        }
-      } catch (error) {
-        console.error('Error during deep link:', error)
+  updateCountdown()
+}
+
+const handleDownloadClick = async () => {
+  if (platform !== 'web' && token) {
+    setLoading(true)
+
+    try {
+      const deepLinkWorked = await tryUniversalLink(token)
+      alert(deepLinkWorked);
+      if (!deepLinkWorked) {
         setLoading(false)
+        startCountdown() // will redirect after countdown
+        return
       }
-    }
-    
-    // Fallback to app store
-    const storeUrl = APP_STORE_URLS['ios']
-    if (storeUrl) {
-      window.open(storeUrl, '_blank')
+    } catch (error) {
+      console.error('Error during deep link:', error)
+      setLoading(false)
+      startCountdown()
+      return
     }
   }
+
+  // Fallback if platform detection failed
+  const storeUrl =  APP_STORE_URLS.ios
+  window.location.href = storeUrl
+}
 
   const getButtonText = () => {
     if (loading) return 'Opening app...'
@@ -137,7 +152,7 @@ export default function SharePage() {
       </p>
       
       <button 
-        onClick={handleDownloadClick} 
+        onClick={() =>handleDownloadClick()} 
         className="primary-button"
         disabled={loading}
       >
