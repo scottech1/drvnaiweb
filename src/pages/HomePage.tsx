@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Download, Car, Wrench, Zap, MessageCircle } from 'lucide-react'
 
 const APP_STORE_URLS = {

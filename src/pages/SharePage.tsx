@@ -34,7 +34,6 @@ export default function SharePage() {
   const tryUniversalLink = async (shareToken: string): Promise<boolean> => {
     return new Promise((resolve) => {
       const universalLink = `https://mobile.drvnai.app/share/${shareToken}`
-      console.log('Attempting universal link:', universalLink)
       
       // Create a hidden iframe to trigger the universal link
       const iframe = document.createElement('iframe')
