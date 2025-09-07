@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Download, Car, Wrench, Zap, MessageCircle } from 'lucide-react'
 
 const APP_STORE_URLS = {
-  ios: 'https://apps.apple.com/in/app/drvnai/id6748619728',
+  ios: 'https://apps.apple.com/app/id6748619728',
   android: 'https://play.google.com/store/apps/details?id=com.sgesdevllc.drvnai'
 }
 
@@ -36,18 +36,24 @@ export default function HomePage() {
   }, [])
 
   const handleDownloadClick = () => {
-    const storeUrl =  APP_STORE_URLS.ios
-    window.location.href = storeUrl
+    console.log('Download clicked for platform:', platform)
+    
+    // Use window.open for all platforms - most reliable for iOS Safari
+    const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.ios
+    console.log('Opening store URL:', storeUrl)
+    
+    // For iOS Safari, window.open works better than window.location.href
+    window.open(storeUrl, '_blank')
   }
 
   const getButtonText = () => {
     switch (platform) {
       case 'ios':
-        return 'Download from App Store'
+        return 'Open in App Store'
       case 'android':
-        return 'Download from Google Play'
+        return 'Open in Google Play'
       default:
-        return 'Download Drvn AI'
+        return 'Download App'
     }
   }
 
@@ -62,7 +68,7 @@ export default function HomePage() {
         Track your vehicles, maintenance, and modifications with AI-powered insights.
       </p>
       
-      <button onClick={() => handleDownloadClick()} className="primary-button">
+      <button onClick={handleDownloadClick} className="primary-button">
         <Download size={20} style={{ marginRight: '8px', display: 'inline' }} />
         {getButtonText()}
       </button>
