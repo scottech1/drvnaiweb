@@ -35,25 +35,12 @@ export default function HomePage() {
     setPlatform(detectPlatform())
   }, [])
 
-const handleDownloadClick = () => {
-  const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.ios
-
-  if (platform === 'ios') {
-    // Try opening the app via universal link
-    const universalLink = 'https://mobile.drvnai.app/'  // <-- your universal link domain
-
-    // Attempt app open
-    window.location.href = universalLink
-
-    // Fallback: after ~2.5s, redirect to App Store
-    setTimeout(() => {
-      window.location.href = storeUrl
-    }, 2500)
-  } else {
-    // Android + Web fallback directly to store
+  const handleDownloadClick = () => {
+    // Simple, reliable navigation that works in all browsers including Safari
+    const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.ios
+    alert(storeUrl)
     window.location.href = storeUrl
   }
-}
 
   const getButtonText = () => {
     switch (platform) {
