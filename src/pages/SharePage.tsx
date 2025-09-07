@@ -109,6 +109,7 @@ const handleDownloadClick = async () => {
     setLoading(true)
 
     try {
+      alert('deepLinkWorked')
       const deepLinkWorked = await tryUniversalLink(token)
       alert(deepLinkWorked);
       if (!deepLinkWorked) {
