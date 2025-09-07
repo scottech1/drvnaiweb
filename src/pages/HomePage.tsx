@@ -29,10 +29,15 @@ function detectAppInstallation(): Promise<{ isInstalled: boolean; method?: strin
   return new Promise((resolve) => {
     console.log('🔍 Detecting app installation...')
     
-    // Track if app opens (user leaves page)
     let appOpened = false
     let detectionMethod = ''
-    
+
+    const cleanup = () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('blur', handleBlur)
+      window.removeEventListener('focus', handleFocus)
+    }
+
     const handleVisibilityChange = () => {
       if (document.hidden) {
         console.log('✅ App detected via visibilitychange')
@@ -40,70 +45,59 @@ function detectAppInstallation(): Promise<{ isInstalled: boolean; method?: strin
         detectionMethod = 'visibilitychange'
       }
     }
-    
+
     const handleBlur = () => {
       console.log('✅ App detected via blur')
       appOpened = true
       detectionMethod = 'blur'
     }
-    
+
     const handleFocus = () => {
-      // If page regains focus quickly, app probably didn't open
       setTimeout(() => {
         if (!appOpened) {
           console.log('❌ Page regained focus - app likely not installed')
         }
-      }, 100)
+      }, 150)
     }
-    
-    // Add event listeners for app detection
+
     document.addEventListener('visibilitychange', handleVisibilityChange)
     window.addEventListener('blur', handleBlur)
     window.addEventListener('focus', handleFocus)
-    
-    // Try multiple deep link approaches
+
     try {
       console.log('🚀 Trying custom scheme:', DEEP_LINKS.custom)
-      
-      // Method 1: Try custom scheme
       const iframe = document.createElement('iframe')
       iframe.style.display = 'none'
       iframe.src = DEEP_LINKS.custom
       document.body.appendChild(iframe)
-      
-      // Method 2: Try universal link after short delay
+
       setTimeout(() => {
         if (!appOpened) {
           console.log('🚀 Trying universal link:', DEEP_LINKS.universal)
           window.location.href = DEEP_LINKS.universal
         }
       }, 500)
-      
-      // Clean up iframe
+
       setTimeout(() => {
         if (iframe.parentNode) {
           iframe.parentNode.removeChild(iframe)
         }
       }, 1000)
-      
     } catch (error) {
       console.log('❌ Deep link attempt failed:', error)
     }
-    
-    // Final detection timeout
+
+    // ✅ Always resolve after 2.5s max
     setTimeout(() => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-      window.removeEventListener('blur', handleBlur)
-      window.removeEventListener('focus', handleFocus)
-      
+      cleanup()
       if (appOpened) {
-        console.log(`✅ App is installed (detected via ${detectionMethod})`)
+        console.log(`✅ App is installed (via ${detectionMethod})`)
         resolve({ isInstalled: true, method: detectionMethod })
       } else {
-        console.log('❌ App is not installed or failed to open')
+        console.log('❌ App not detected')
         resolve({ isInstalled: false })
       }
-    }, 3000)
+    }, 2500)
   })
 }
 
@@ -117,7 +111,6 @@ export default function HomePage() {
     const detectedPlatform = detectPlatform()
     setPlatform(detectedPlatform)
     
-    // Only check for app installation on mobile platforms
     if (detectedPlatform !== 'web') {
       checkAppInstallation()
     } else {
@@ -132,7 +125,6 @@ export default function HomePage() {
       setButtonText('Checking app...')
       
       const result = await detectAppInstallation()
-      
       setAppInstalled(result.isInstalled)
       
       if (result.isInstalled) {
@@ -159,16 +151,12 @@ export default function HomePage() {
     setLoading(true)
     
     if (appInstalled === true) {
-      // App is installed - try to open it
       console.log('📱 App is installed, attempting to open...')
       setButtonText('Opening app...')
       
       try {
-        // Try to open the app
         const result = await detectAppInstallation()
-        
         if (!result.isInstalled) {
-          // App failed to open, maybe it was uninstalled
           console.log('🔄 App failed to open, redirecting to store...')
           setButtonText('Redirecting to store...')
           setTimeout(() => {
@@ -180,16 +168,13 @@ export default function HomePage() {
         window.open(getAppStoreUrl(), '_blank')
       }
     } else {
-      // App is not installed - go to store
       console.log('📦 App not installed, redirecting to store...')
       setButtonText('Opening store...')
-      
       setTimeout(() => {
         window.open(getAppStoreUrl(), '_blank')
       }, 500)
     }
 
-    // Reset loading after delay
     setTimeout(() => {
       setLoading(false)
       if (appInstalled === true) {
@@ -198,13 +183,6 @@ export default function HomePage() {
         setButtonText(platform === 'ios' ? 'Download from App Store' : 'Download from Google Play')
       }
     }, 2000)
-  }
-
-  const handleDownloadClick = async () => {
-    if (loading) return
-    if (platform !== 'web') {
-      setPlatform(detectPlatform())
-    }
   }
 
   const getStatusMessage = () => {
@@ -229,9 +207,7 @@ export default function HomePage() {
       </div>
       
       <h1 className="title">Drvn AI</h1>
-      <p className="subtitle">
-        {getStatusMessage()}
-      </p>
+      <p className="subtitle">{getStatusMessage()}</p>
       
       <button 
         onClick={handleButtonClick} 
