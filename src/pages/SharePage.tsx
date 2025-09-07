@@ -80,22 +80,11 @@ export default function SharePage() {
   }
 
   const startCountdown = () => {
-    let seconds = 3
-    
-    const updateCountdown = () => {
-      if (seconds > 0) {
-        setCountdown(`Redirecting to app store in ${seconds} seconds...`)
-        seconds--
-        setTimeout(updateCountdown, 1000)
-      } else {
-        const storeUrl = APP_STORE_URLS[platform]
+ 
+        const storeUrl = APP_STORE_URLS['ios']
         if (storeUrl) {
           window.location.href = storeUrl
-        }
-      }
-    }
-    
-    updateCountdown()
+        }    
   }
 
   const handleDownloadClick = async () => {
@@ -117,7 +106,7 @@ export default function SharePage() {
     }
     
     // Fallback to app store
-    const storeUrl = APP_STORE_URLS[platform]
+    const storeUrl = APP_STORE_URLS['ios']
     if (storeUrl) {
       window.open(storeUrl, '_blank')
     }
