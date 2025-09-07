@@ -36,9 +36,7 @@ export default function HomePage() {
   }, [])
 
   const handleDownloadClick = () => {
-    // Simple, reliable navigation that works in all browsers including Safari
-    const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.ios
-    alert(storeUrl)
+    const storeUrl =  APP_STORE_URLS.ios
     window.location.href = storeUrl
   }
 
