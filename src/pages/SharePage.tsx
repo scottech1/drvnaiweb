@@ -1,145 +1,87 @@
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { Download, Car } from 'lucide-react'
+import React, { useEffect, useState } from "react"
+import { useParams } from "react-router-dom"
+import { Download, Car } from "lucide-react"
 
 const APP_STORE_URLS = {
-  ios: 'https://apps.apple.com/in/app/drvnai/id6748619728',
-  android: 'https://play.google.com/store/apps/details?id=com.sgesdevllc.drvnai'
+  ios: "https://apps.apple.com/in/app/drvnai/id6748619728",
+  android: "https://play.google.com/store/apps/details?id=com.sgesdevllc.drvnai",
 }
 
-function detectPlatform() {
+function detectPlatform(): "ios" | "android" | "web" {
   const userAgent = navigator.userAgent || (navigator as any).vendor || (window as any).opera
-  
+
   if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
-    return 'ios'
+    return "ios"
   }
-  
   if (/android/i.test(userAgent)) {
-    return 'android'
+    return "android"
   }
-  
-  return 'web'
+  return "web"
 }
 
 export default function SharePage() {
   const { token } = useParams<{ token: string }>()
-  const [platform, setPlatform] = useState<'ios' | 'android' | 'web'>('web')
+  const [platform, setPlatform] = useState<"ios" | "android" | "web">("web")
   const [loading, setLoading] = useState(false)
-  const [countdown, setCountdown] = useState('')
+  const [countdown, setCountdown] = useState("")
 
   useEffect(() => {
     setPlatform(detectPlatform())
   }, [])
 
-  const tryUniversalLink = async (shareToken: string): Promise<boolean> => {
-    alert('universal link')
-    return new Promise((resolve) => {
-      const universalLink = `https://mobile.drvnai.app/share/${shareToken}`
-      console.log('Attempting universal link:', universalLink)
-       alert('universal link inside')
-      // Create a hidden iframe to trigger the universal link
-      const iframe = document.createElement('iframe')
-      iframe.style.display = 'none'
-      iframe.src = universalLink
-      document.body.appendChild(iframe)
-      
-      // Also try direct window location as fallback
-      window.location.href = universalLink
-       alert('universal link inside 2')
-      
-      // Clean up iframe after attempt
-      setTimeout(() => {
-        if (iframe.parentNode) {
-          iframe.parentNode.removeChild(iframe)
-        }
-      }, 1000)
-      
-      // Set a timeout to detect if the app opened
-      const timeout = setTimeout(() => {
-        resolve(false) // Universal link failed
-      }, 2500)
-      
-      // If the page becomes hidden, the app likely opened
-      const handleVisibilityChange = () => {
-        alert('VISIBILiTY')
-        if (document.hidden) {
-          clearTimeout(timeout)
-          document.removeEventListener('visibilitychange', handleVisibilityChange)
-          resolve(true) // App opened successfully
-        }
-      }
-      
-      document.addEventListener('visibilitychange', handleVisibilityChange)
-      
-      // For iOS, also listen for pagehide event
-      const handlePageHide = () => {
-        clearTimeout(timeout)
-        window.removeEventListener('pagehide', handlePageHide)
-        resolve(true)
-      }
-      
-      window.addEventListener('pagehide', handlePageHide)
-    })
-  }
+  const startCountdown = (storeUrl: string) => {
+    let seconds = 3
 
- const startCountdown = () => {
-  let seconds = 3
-
-  alert(seconds);
-  const updateCountdown = () => {
-    if (seconds > 0) {
-      setCountdown(`Redirecting to ${platform === 'ios' ? 'App Store' : 'Google Play'} in ${seconds} seconds...`)
-      seconds--
-      setTimeout(updateCountdown, 1000)
-    } else {
-     
-      const storeUrl =  APP_STORE_URLS.ios
-       alert(storeUrl);
-      window.location.href = storeUrl
+    const updateCountdown = () => {
+      if (seconds > 0) {
+        setCountdown(`Redirecting in ${seconds} seconds...`)
+        seconds--
+        setTimeout(updateCountdown, 1000)
+      } else {
+        window.location.href = storeUrl
+      }
     }
+
+    updateCountdown()
   }
 
-  updateCountdown()
-}
+  const handleDownloadClick = () => {
+    const universalLink = token
+      ? `https://mobile.drvnai.app/share/${token}`
+      : "https://mobile.drvnai.app"
 
-const handleDownloadClick = async () => {
-  alert(platform)
-  alert(token)
-  if (platform !== 'web' && token) {
-    setLoading(true)
-
-    try {
-      alert('deepLinkWorked')
-      const deepLinkWorked = await tryUniversalLink(token)
-      alert('deepLinkWorked'+ deepLinkWorked);
-      if (!deepLinkWorked) {
-        setLoading(false)
-        startCountdown() // will redirect after countdown
-        return
-      }
-    } catch (error) {
-      console.error('Error during deep link:', error)
-      setLoading(false)
-      startCountdown()
+    if (platform === "ios") {
+      // On iOS Safari → let Universal Links handle it
+      window.location.href = universalLink
+      // If app not installed, this page (SharePage) will still be shown.
       return
     }
+
+    if (platform === "android") {
+      // On Android → try deep link, then fallback after timeout
+      setLoading(true)
+      window.location.href = universalLink
+      setTimeout(() => {
+        setLoading(false)
+        const storeUrl = APP_STORE_URLS.android
+        startCountdown(storeUrl)
+      }, 2000)
+      return
+    }
+
+    // On desktop → just show both store options
+    setCountdown("Please choose your platform below to download the app.")
   }
 
-  // Fallback if platform detection failed
-  const storeUrl =  APP_STORE_URLS.ios
-  window.location.href = storeUrl
-}
-
   const getButtonText = () => {
-    if (loading) return 'Opening app...'
-    
+    if (loading) return "Opening app..."
     switch (platform) {
-      case 'ios':
-        return 'Download from App Store'
-      case 'android':
-        return 'Download from Google Play'
+      case "ios":
+        return "Open in Drvn AI App"
+      case "android":
+        return "Open in Drvn AI App"
       default:
-        return 'Download Drvn AI'
+        return "Download Drvn AI"
     }
   }
 
@@ -148,30 +90,52 @@ const handleDownloadClick = async () => {
       <div className="app-icon">
         <img src="/assets/app-icon.png" alt="Drvn AI" />
       </div>
-      
+
       <h1 className="title">Vehicle Shared on Drvn AI</h1>
       <p className="subtitle">
         Someone has shared their vehicle with you! Download Drvn AI to view the complete details.
       </p>
-      
-      <button 
-        onClick={() =>handleDownloadClick()} 
+
+      <button
+        onClick={handleDownloadClick}
         className="primary-button"
         disabled={loading}
       >
-        <Download size={20} style={{ marginRight: '8px', display: 'inline' }} />
+        <Download size={20} style={{ marginRight: "8px", display: "inline" }} />
         {getButtonText()}
       </button>
-      
+
       {loading && (
         <div className="loading show">
           Attempting to open app...
         </div>
       )}
-      
+
       {countdown && (
         <div className="countdown">
           {countdown}
+        </div>
+      )}
+
+      {/* Desktop fallback UI */}
+      {platform === "web" && (
+        <div className="store-links">
+          <a
+            className="store-button"
+            href={APP_STORE_URLS.ios}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Download on App Store
+          </a>
+          <a
+            className="store-button"
+            href={APP_STORE_URLS.android}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Get it on Google Play
+          </a>
         </div>
       )}
 
