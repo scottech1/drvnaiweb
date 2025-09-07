@@ -26,7 +26,6 @@ export default function SharePage() {
   const [platform, setPlatform] = useState<'ios' | 'android' | 'web'>('web')
   const [loading, setLoading] = useState(false)
   const [countdown, setCountdown] = useState('')
-  const [isNavigating, setIsNavigating] = useState(false)
 
   useEffect(() => {
     setPlatform(detectPlatform())
@@ -89,19 +88,17 @@ export default function SharePage() {
         seconds--
         setTimeout(updateCountdown, 1000)
       } else {
-        const storeUrl = APP_STORE_URLS[platform]
-        if (storeUrl) {
-          window.location.href = storeUrl
-        }
+        // Simple, reliable navigation
+        const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.ios
+        console.log('Countdown finished, navigating to:', storeUrl)
+        window.location.href = storeUrl
       }
     }
     
     updateCountdown()
   }
 
-  const handleDownloadClick = async () => {
-    setIsNavigating(true)
-    
+  const handleDownloadClick = async () => {    
     if (platform !== 'web' && token) {
       setLoading(true)
       
@@ -110,61 +107,22 @@ export default function SharePage() {
         
         if (!deepLinkWorked) {
           setLoading(false)
-          setIsNavigating(false)
           startCountdown()
           return
         }
       } catch (error) {
         console.error('Error during deep link:', error)
         setLoading(false)
-        setIsNavigating(false)
       }
     }
     
-    try {
-      // Enhanced Safari-compatible navigation
-      if (platform === 'ios') {
-        // Create a temporary anchor element for better Safari compatibility
-        const link = document.createElement('a')
-        link.href = APP_STORE_URLS.ios
-        link.target = '_blank'
-        link.rel = 'noopener noreferrer'
-        
-        // Add to DOM temporarily
-        document.body.appendChild(link)
-        
-        // Trigger click
-        link.click()
-        
-        // Clean up
-        document.body.removeChild(link)
-        
-        // Multiple fallbacks for Safari
-        setTimeout(() => {
-          window.open(APP_STORE_URLS.ios, '_blank', 'noopener,noreferrer')
-        }, 100)
-        
-        setTimeout(() => {
-          window.location.href = APP_STORE_URLS.ios
-        }, 500)
-      } else {
-        // For Android and other platforms
-        const storeUrl = APP_STORE_URLS[platform]
-        if (storeUrl) {
-          window.open(storeUrl, '_blank', 'noopener,noreferrer')
-        }
-      }
-    } catch (error) {
-      console.error('Navigation error:', error)
-      // Final fallback
-      window.location.href = APP_STORE_URLS[platform]
-    } finally {
-      setTimeout(() => setIsNavigating(false), 2000)
-    }
+    // Simple, reliable navigation that works in all browsers including Safari
+    const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.ios
+    console.log('Direct navigation to:', storeUrl)
+    window.location.href = storeUrl
   }
 
   const getButtonText = () => {
-    if (isNavigating) return 'Opening App Store...'
     if (loading) return 'Opening app...'
     
     switch (platform) {

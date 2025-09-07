@@ -104,7 +104,18 @@ body {
 .primary-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
+}
+
+.primary-button:active {
+  transform: translateY(1px);
+}
+
+/* Enhanced button feedback for mobile */
+@media (hover: none) and (pointer: coarse) {
+  .primary-button:active {
+    background: linear-gradient(135deg, #1976D2, #1565C0);
+    transform: scale(0.98);
+  }
 }
 
 .features {
