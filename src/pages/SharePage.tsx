@@ -74,9 +74,11 @@ export default function SharePage() {
   }
 
   const getButtonText = () => {
+    alert()
     if (loading) return "Opening app..."
     switch (platform) {
       case "ios":
+            alert('ios')
         return "Open in Drvn AI App"
       case "android":
         return "Open in Drvn AI App"
