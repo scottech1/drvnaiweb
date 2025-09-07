@@ -103,6 +103,8 @@ export default function SharePage() {
 }
 
 const handleDownloadClick = async () => {
+  alert(platform)
+  alert(token)
   if (platform !== 'web' && token) {
     setLoading(true)
 
