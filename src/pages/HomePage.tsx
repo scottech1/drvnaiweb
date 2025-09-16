@@ -110,7 +110,7 @@ export default function HomePage() {
       }
       
       // App didn't open or it's web platform, go to store
-      const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.ios
+      const storeUrl =  APP_STORE_URLS.ios
       console.log('Navigating to store:', storeUrl)
       
       // Use direct navigation - most reliable
@@ -119,7 +119,7 @@ export default function HomePage() {
     } catch (error) {
       console.error('Navigation error:', error)
       // Fallback to direct store navigation
-      const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.ios
+      const storeUrl = APP_STORE_URLS.ios
       window.location.href = storeUrl
     } finally {
       // Reset loading after a delay

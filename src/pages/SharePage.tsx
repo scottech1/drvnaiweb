@@ -90,7 +90,7 @@ export default function SharePage() {
         setTimeout(updateCountdown, 1000)
       } else {
         // Simple, reliable navigation
-        const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.ios
+        const storeUrl = APP_STORE_URLS.ios
         console.log('Countdown finished, navigating to:', storeUrl)
         window.location.href = storeUrl
       }
@@ -126,7 +126,7 @@ export default function SharePage() {
   const navigateToAppStore = () => {
     console.log('Navigating to app store for platform:', platform)
     
-    const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.ios
+    const storeUrl = APP_STORE_URLS.ios
     console.log('Direct navigation to:', storeUrl)
     
     // Use window.location.href for most reliable navigation
